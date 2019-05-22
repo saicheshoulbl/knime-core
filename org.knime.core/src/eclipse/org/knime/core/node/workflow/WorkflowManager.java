@@ -6227,21 +6227,21 @@ public final class WorkflowManager extends NodeContainer
      * @param prefix if containing node/workflow
      * @param indent number of leading spaces
      * @return String of errors with their node ids
+     * @since 3.8
      */
-    public String printNodeErrorSummary(final NodeID prefix, final int indent) {
+    String printNodeErrorSummary(final int indent) {
         char[] indentChars = new char[indent];
         Arrays.fill(indentChars, ' ');
         String indentString = new String(indentChars);
         StringBuilder build = new StringBuilder(indentString);
         try (WorkflowLock lock = lock()) {
             for (NodeID id : m_workflow.getNodeIDs()) {
-                if (id.hasPrefix(prefix)) {
                     NodeContainer nc = m_workflow.getNode(id);
                     if (nc instanceof WorkflowManager) {
-                        build.append(((WorkflowManager)nc).printNodeErrorSummary(nc.getID(), indent + 2));
+                        build.append(((WorkflowManager)nc).printNodeErrorSummary(indent + 2));
                     } else if (nc instanceof SubNodeContainer) {
                         build.append(
-                            ((SubNodeContainer)nc).getWorkflowManager().printNodeErrorSummary(nc.getID(), indent + 6));
+                            ((SubNodeContainer)nc).getWorkflowManager().printNodeErrorSummary(indent + 6));
                     } else {
                         if (!nc.getNodeContainerState().isExecuted()
                             && nc.getNodeMessage().getMessageType() == Type.ERROR) {
@@ -6253,9 +6253,6 @@ public final class WorkflowManager extends NodeContainer
                             build.append("\n");
                         }
                     }
-                } else { // skip remaining nodes with wrong prefix
-                    break;
-                }
             }
         }
         return build.toString();
